@@ -1,0 +1,9 @@
+.nav {
+  width: 60%;
+  margin: 0 auto;
+  text-align: start;
+}
+
+.nav h1 {
+  font-size: 25px;
+}

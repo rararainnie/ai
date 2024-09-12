@@ -1,0 +1,44 @@
+label {
+  width: 100px;
+  height: 50px;
+  background: #ebebeb;
+  border-radius: 200px;
+  box-shadow: inset 0px 5px 15px rgba(0, 0, 0, 0.4),
+    inset 0px -5px 15px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: 0.5s;
+  display: flex;
+}
+
+label:after {
+  content: "";
+  width: 45px;
+  height: 45px;
+  display: flex;
+  background: linear-gradient(180deg, #ffcc89, #d8860b);
+  border-radius: 180px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  top: 20.1%;
+  left: 46%;
+  transition: left 1s, transform 1s, background 1s;
+}
+
+#selection-toggle {
+  visibility: hidden;
+}
+
+#selection-toggle:checked + label {
+  background: #42a5f5;
+  color: white;
+}
+
+#selection-toggle:checked + label:after {
+  left: 50%;
+  transform: translateX(0);
+  background: linear-gradient(180deg, #1565c0, #0d47a1);
+}
+
+label,
+label:after {
+  transition: 0.5s;
+}
