@@ -67,6 +67,7 @@ const UploadBox = () => {
   const [image, setImage] = useState(null);
   const [data, setData] = useState([]);
   const [prediction, setPrediction] = useState(null);
+  const [caption, setCaption] = useState(""); // State for caption
 
   useEffect(() => {
     fetch("http://localhost:5000/descriptionAI", {
@@ -91,10 +92,13 @@ const UploadBox = () => {
           ctx.drawImage(img, 0, 0);
           const base64Image = canvas.toDataURL("image/jpeg").split(",")[1];
 
-          // อัพเดตสถานะ image
+          // Update image state
           setImage(canvas.toDataURL("image/jpeg"));
 
-          // ส่งภาพไปยังเซิร์ฟเวอร์
+          // Reset caption on new image upload
+          setCaption("");
+
+          // Send image to server
           fetch("http://localhost:5000/predict", {
             method: "POST",
             headers: {
@@ -115,29 +119,55 @@ const UploadBox = () => {
     }
   };
 
+  const handleGenerateCaption = () => {
+    if (image) {
+      setCaption("This is a caption of the Image");
+    } else {
+      setCaption("Please upload an image before generating a caption");
+    }
+  };
+
   return (
     <div className="upload-box">
-      {image && <img src={image} alt="Uploaded" className="uploaded-image" />}
-      <button
-        className="custom-button"
-        onClick={() => document.getElementById("hidden-file-input").click()}
-      >
-        Upload Image
-      </button>
+      <div className="image-box">
+        {image ? (
+          <img src={image} alt="Uploaded" className="uploaded-image" />
+        ) : (
+          <div className="placeholder">Upload an Image</div>
+        )}
+      </div>
+      <div className="button-group">
+        <button
+          className="custom-button"
+          onClick={() => document.getElementById("hidden-file-input").click()}
+        >
+          Upload Image
+        </button>
+        <button
+          className="custom-button generate-caption-button"
+          onClick={handleGenerateCaption}
+        >
+          Generate Caption
+        </button>
+      </div>
       <input
         type="file"
         id="hidden-file-input"
         onChange={handleImageChange}
         style={{ display: "none" }}
       />
+      {/* Text box to display caption or error */}
+      <div className={`caption-box ${image ? "caption" : "error"}`}>
+        {caption}
+      </div>
       <h3>{data.join(", ")}</h3>
       <h3>
         Prediction: {prediction ? prediction.join(", ") : "No prediction yet"}
       </h3>
       <OptionBox id="option-1" />
-      <OptionBox id="option-2" />
     </div>
   );
 };
 
 export default UploadBox;
+

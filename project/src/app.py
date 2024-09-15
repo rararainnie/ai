@@ -17,6 +17,9 @@
 #     app.run(debug=True)
 
 
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from tensorflow.keras.models import load_model
@@ -29,7 +32,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load the model once when the server starts
-model = load_model('./models/model_9.h5')
+model = load_model('best_model_BatchNormalization.h5')
 
 @app.route("/descriptionAI", methods=['GET'])
 def des():
