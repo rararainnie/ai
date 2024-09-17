@@ -1,4 +1,4 @@
-.nav {
+/* .nav {
   background-color: #42a5f5;
   width: 100%;
   margin: 0 auto;
@@ -9,4 +9,20 @@
   font-size: 25px;
   font-style: italic;
   color: white;
+} */
+
+.nav {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #60aa77;
+  padding: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav h1 {
+  color: #ffffff;
+  font-size: 36px;
+  margin: 0;
+  font-family: 'Helvetica Neue', sans-serif;
 }

@@ -1,33 +1,37 @@
 .option-box-container {
   display: flex;
   align-items: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 2px solid #42a5f5;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 2px solid #5d7c66;
   border-radius: 10px;
-  background-color: #d4f3ff;
+  background-color: #dbfae2;
 }
 
 .option-box-container span {
+  color: #114d22;;
   font-size: 20px;
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
 .number-input {
-  width: 40px;
+  width: 50px;
   margin-left: 10px;
   margin-right: 10px;
-  font-size: 15px;
+  font-size: 16px;
   text-align: center;
-  border: 1px solid #ccc;
+  border: 2px solid #5d7c66;
   border-radius: 4px;
+  background-color: #eafff0;
+  color: #114d22;;;
 }
 
 .show-button {
-  padding: 6px 12px;
-  width: 75px;
-  font-size: 15px;
-  background-color: #42a5f5;
+  padding: 8px 16px;
+  width: 90px;
+  font-size: 16px;
+  background-color: #228137;
   color: white;
   border: none;
   border-radius: 5px;
@@ -37,10 +41,51 @@
 }
 
 .show-button:hover {
-  background-color: #1e88e5;
+  background-color: #126123;
   transform: scale(1.05);
 }
 
 .show-button:active {
   transform: scale(1);
+}
+
+/* Uncomment and adapt as needed */
+
+label {
+  width: 80px;
+  height: 50px;
+  background: #e0e0e0;
+  border-radius: 25px;
+  box-shadow: inset 0px 5px 15px rgba(0, 0, 0, 0.2),
+    inset 0px -5px 15px rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background 0.5s;
+  display: flex;
+  margin: 0 5px;
+}
+
+label:after {
+  content: "";
+  margin: 3px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(180deg, #f0f0f0, #d0d0d0);
+  border-radius: 50%;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s, background 0.5s;
+  transform: translateX(0);
+}
+
+input[type="checkbox"] {
+  visibility: hidden;
+}
+
+input[type="checkbox"]:checked + label {
+  background: #007bff;
+  color: white;
+}
+
+input[type="checkbox"]:checked + label:after {
+  transform: translateX(34px);
+  background: linear-gradient(180deg, #0056b3, #007bff);
 }
