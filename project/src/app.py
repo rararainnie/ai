@@ -1,70 +1,154 @@
-# from flask import Flask, jsonify
-# from flask_cors import CORS
-# from tensorflow.keras.models import load_model
-
-# app = Flask(__name__)
-# CORS(app) 
-
-# @app.route("/descriptionAI", methods='GET')
-# def des():
-#     return jsonify({"members": ["isus", "nahee"]})  
-
-# @app.route("/predict", methods='POST')
-# def predict():
-#     return jsonify({"members": ["isus", "nahee"]})  
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-
+import os
+import numpy as np
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from tensorflow.keras.models import load_model
-import numpy as np
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from PIL import Image
 import io
 import base64
+from keras.applications.efficientnet import preprocess_input
+from keras.preprocessing.text import Tokenizer
+from keras.applications import EfficientNetB7
 
 app = Flask(__name__)
 CORS(app)
 
-# Load the model once when the server starts
-model = load_model('./models/model_9.h5')
+# Load EfficientNetB7 model pre-trained on ImageNet
+modelEfficientNetB7 = EfficientNetB7(weights='imagenet')
+modelEfficientNetB7 = Model(inputs=modelEfficientNetB7.inputs, outputs=modelEfficientNetB7.layers[-2].output)
+model = load_model('./models/EfficientNetB7_30k_model.h5')  # Path to your saved model
 
-@app.route("/descriptionAI", methods=['GET'])
-def des():
-    return jsonify({"members": ["isus", "nahee"]})
+# Define the path to the base directory
+BASE_DIR = './models'
+
+with open(os.path.join(BASE_DIR, 'captions.txt'), 'r') as f:
+    next(f)
+    captions_doc = f.read()
+
+# create mapping of image to captions
+mapping = {}
+# process lines
+for line in captions_doc.split('\n'):
+    # split the line by comma(,)
+    tokens = line.split(',')
+    if len(line) < 2:
+        continue
+    image_id, caption = tokens[0], tokens[1:]
+    # remove extension from image ID
+    image_id = image_id.split('.')[0]
+    # convert caption list to string
+    caption = " ".join(caption)
+    # create list if needed
+    if image_id not in mapping:
+        mapping[image_id] = []
+    # store the caption
+    mapping[image_id].append(caption)
+
+def clean(mapping):
+    for key, captions in mapping.items():
+        for i in range(len(captions)):
+            # take one caption at a time
+            caption = captions[i]
+
+            # == preprocessing steps ==
+            # convert to lowercase
+            caption = caption.lower()
+            # delete digits, special chars, etc., 
+            caption = caption.replace('[^A-Za-z]', '')
+            # delete additional spaces
+            caption = caption.replace('\s+', ' ')
+            # add start and end tags to the caption
+            caption = 'startseq ' + " ".join([word for word in caption.split() if len(word)>1]) + ' endseq'
+            captions[i] = caption
+
+# preprocess the text
+clean(mapping)
+
+all_captions = []
+for key in mapping:
+    for caption in mapping[key]:
+        all_captions.append(caption)
+
+# tokenize the text
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(all_captions)
+
+# get maximum length of the caption available
+max_length = max(len(caption.split()) for caption in all_captions)
+max_length
+
+# Helper functions
+def get_feature(image_name):
+    """Extract features from the image using EfficientNetB7."""
+    directory = os.path.join(BASE_DIR, 'TestImages')
+    img_path = os.path.join(directory, image_name + '.jpg')
+    
+    # Load and preprocess image
+    image = Image.open(img_path).resize((600, 600))
+    image = np.array(image)
+    image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
+    image = preprocess_input(image)
+    
+    # Extract features
+    feature = modelEfficientNetB7.predict(image, verbose=0)
+    return feature
+
+def idx_to_word(integer, tokenizer):
+    """Map integer index to the corresponding word from the tokenizer."""
+    for word, index in tokenizer.word_index.items():
+        if index == integer:
+            return word
+    return None
+
+def predict_caption(model, image, tokenizer, max_length):
+    """Generate a caption for the given image."""
+    in_text = 'startseq'
+    for i in range(max_length):
+        sequence = tokenizer.texts_to_sequences([in_text])[0]
+        sequence = pad_sequences([sequence], max_length, padding='post')
+        yhat = model.predict([image, sequence], verbose=0)
+        yhat = np.argmax(yhat)
+        word = idx_to_word(yhat, tokenizer)
+        if word is None:
+            break
+        in_text += " " + word
+        if word == 'endseq':
+            break
+
+    # Remove 'startseq' and 'endseq' tags from the caption
+    caption = in_text.replace('startseq ', '').replace(' endseq', '')
+    return caption
 
 @app.route("/predict", methods=['POST'])
 def predict():
-    # รับข้อมูลจากคำขอ
     data = request.get_json()
     image_data = data.get('image')
 
     if image_data:
-        # แปลงข้อมูล base64 กลับเป็นรูปภาพ
-        image = Image.open(io.BytesIO(base64.b64decode(image_data)))
-        image = image.resize((224, 224))  # ปรับขนาดภาพให้เหมาะกับโมเดล
+        try:
+            # Convert base64 to image
+            image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+            image = image.resize((600, 600))
+            image = np.array(image)
+            
+            # Extract features from the image
+            feature = modelEfficientNetB7.predict(np.expand_dims(image, axis=0))
 
-        # แปลงภาพเป็น array และปรับแต่งให้ตรงกับ input ของโมเดล
-        img_array = np.array(image) / 255.0  # Normalization
-        img_array = np.expand_dims(img_array, axis=0)  # เพิ่มมิติให้ตรงกับ input ของโมเดล
+            # Generate caption for the image
+            caption = predict_caption(model, feature, tokenizer, max_length)
+            print(caption)  # Debugging output
 
-        # สร้างข้อมูล input อื่น ๆ ที่โมเดลต้องการ
-        input_1 = np.zeros((1, 2048))  # ตัวอย่างการสร้างข้อมูลที่จำเป็น
-        input_2 = np.zeros((1, 32))    # ตัวอย่างการสร้างข้อมูลที่จำเป็น
+            # Return JSON response with the caption
+            return jsonify({"caption": caption})
 
-        # รวมข้อมูลทั้งหมด
-        inputs = [input_1, input_2]
+        except Exception as e:
+            # Handle any errors that occur during processing
+            print(f"Error: {str(e)}")
+            return jsonify({"error": "Error processing image"}), 500
 
-        # ทำการพยากรณ์
-        prediction = model.predict(inputs)
-
-        # ส่งผลลัพธ์กลับไป
-        return jsonify({"prediction": prediction.tolist()})
     else:
         return jsonify({"error": "No image provided"}), 400
-
 
 if __name__ == "__main__":
     app.run(debug=True)

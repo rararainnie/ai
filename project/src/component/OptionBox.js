@@ -1,11 +1,36 @@
 import "./OptionBox.css";
+import React, { useState } from "react";
 
-function OptionBox({ label, id }) {
+function OptionBox({ id, onShowSimilar }) {
+  const [number, setNumber] = useState(1);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    if (value >= 1 && value <= 10) {
+      setNumber(value);
+    }
+  };
+
+  const handleClick = () => {
+    onShowSimilar(number);
+  };
+
   return (
-    <>
-      <input type="checkbox" id={id} />
-      <label htmlFor={id}></label>
-    </>
+    <div className="option-box-container">
+      <span>Search for</span>
+      <input
+        className="number-input"
+        type="number"
+        min="1"
+        max="10"
+        value={number}
+        onChange={handleChange}
+      />
+      <span>similar images</span>
+      <button className="show-button" onClick={handleClick}>
+        Search
+      </button>
+    </div>
   );
 }
 
