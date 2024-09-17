@@ -59,24 +59,14 @@
 
 // export default UploadBox;
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./UploadBox.css";
 import OptionBox from "./OptionBox.js";
 
 const UploadBox = () => {
   const [image, setImage] = useState(null);
-  const [data, setData] = useState([]);
-  const [prediction, setPrediction] = useState(null);
-  const [caption, setCaption] = useState(""); // State for caption
-
-  useEffect(() => {
-    fetch("http://localhost:5000/descriptionAI", {
-      method: "GET",
-    })
-      .then((resp) => resp.json())
-      .then((jsonData) => setData(jsonData.members || []))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+  const [prediction, setPrediction] = useState(null); // Prediction state
+  const [caption, setCaption] = useState("Please upload an image before generating a caption"); // State for caption and prediction
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -95,8 +85,9 @@ const UploadBox = () => {
           // Update image state
           setImage(canvas.toDataURL("image/jpeg"));
 
-          // Reset caption on new image upload
+          // Reset caption and prediction on new image upload
           setCaption("");
+          setPrediction(null);
 
           // Send image to server
           fetch("http://localhost:5000/predict", {
@@ -109,7 +100,7 @@ const UploadBox = () => {
             .then((response) => response.json())
             .then((result) => {
               console.log("Prediction:", result.prediction); // Log prediction result
-              setPrediction(result.prediction);
+              setPrediction(result.prediction); // Store prediction result
             })
             .catch((error) => console.error("Error predicting image:", error));
         };
@@ -121,8 +112,14 @@ const UploadBox = () => {
 
   const handleGenerateCaption = () => {
     if (image) {
-      setCaption("This is a caption of the Image");
+      // If an image is uploaded, display both caption and prediction
+      let captionText = "This is a caption of the Image";
+      if (prediction) {
+        captionText += `\nPrediction: ${prediction.join(", ")}`;
+      }
+      setCaption(captionText);
     } else {
+      // If no image is uploaded, show error
       setCaption("Please upload an image before generating a caption");
     }
   };
@@ -148,8 +145,10 @@ const UploadBox = () => {
           onClick={handleGenerateCaption}
         >
           Generate Caption
-        </button>
+        </button>    
       </div>
+      <OptionBox label="similar images" />
+      {/* <OptionBox id="option-1" label="Show similar pictures" /> */}
       <input
         type="file"
         id="hidden-file-input"
@@ -158,16 +157,14 @@ const UploadBox = () => {
       />
       {/* Text box to display caption or error */}
       <div className={`caption-box ${image ? "caption" : "error"}`}>
-        {caption}
+        {caption.split("\n").map((line, index) => (
+          <div key={index}>{line}</div>
+        ))}
       </div>
-      <h3>{data.join(", ")}</h3>
-      <h3>
-        Prediction: {prediction ? prediction.join(", ") : "No prediction yet"}
-      </h3>
-      <OptionBox id="option-1" />
     </div>
   );
 };
 
 export default UploadBox;
+
 

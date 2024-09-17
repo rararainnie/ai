@@ -20,7 +20,7 @@
 
 .placeholder {
   color: #aaa;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .uploaded-image {
@@ -40,29 +40,42 @@
 
 .custom-button {
   margin-top: 15px;
-  width: 120px;
+  width: 125px;
   height: 50px;
   border: none;
   border-radius: 10px;
   background-color: rgb(221, 221, 221);
+  border: 2px solid #757675;
+  font-size: 15px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .custom-button:hover {
   background-color: #757675;
+  transform: scale(1.05);
+}
+
+.custom-button:active {
+  transform: scale(1);
 }
 
 .generate-caption-button {
   background-color: #98ff84;
+  border: 2px solid #4fad4c;
+
 }
 
 .generate-caption-button:hover {
   background-color: #4fad4c;
+  transform: scale(1.05);
+}
+
+.generate-caption-button:active {
+  transform: scale(1);
 }
 
 .caption-box {
-  margin-top: 20px;
   padding: 10px;
   width: 600px;
   border: 2px solid #646464;
@@ -76,6 +89,5 @@
 }
 
 .error {
-  font-weight: bold;
-  color: red;
+  color: #aaa;
 }

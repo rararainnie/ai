@@ -1,4 +1,52 @@
-label {
+.option-box-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 2px solid #42a5f5;
+  border-radius: 10px;
+  background-color: #f0f8ff;
+}
+
+.option-box-container span {
+  font-size: 20px;
+}
+
+.number-input {
+  width: 40px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 15px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.show-button {
+  padding: 6px 12px;
+  width: 75px;
+  font-size: 15px;
+  background-color: #42a5f5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.show-button:hover {
+  background-color: #1e88e5;
+  transform: scale(1.05);
+}
+
+.show-button:active {
+  transform: scale(1);
+}
+
+
+/* label {
   width: 80px;
   height: 50px;
   background: #ebebeb;
@@ -8,7 +56,6 @@ label {
   cursor: pointer;
   transition: background 0.5s;
   display: flex;
-  align-items: center;
   margin: 0 5px;
 }
 
@@ -36,4 +83,4 @@ input[type="checkbox"]:checked + label {
 input[type="checkbox"]:checked + label:after {
   transform: translateX(34px);
   background: linear-gradient(180deg, #1565c0, #0d47a1);
-}
+} */
