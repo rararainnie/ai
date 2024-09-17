@@ -1,9 +1,12 @@
 .nav {
-  width: 60%;
+  background-color: #42a5f5;
+  width: 100%;
   margin: 0 auto;
-  text-align: start;
+  text-align: center; 
 }
 
 .nav h1 {
   font-size: 25px;
+  font-style: italic;
+  color: white;
 }

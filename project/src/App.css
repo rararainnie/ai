@@ -1,6 +1,6 @@
 .bg {
   height: 100vh;
-  background-color: rgb(255, 240, 240);
+  background-color: #f0f8ff; 
   color: black;
   display: flex;
   flex-direction: column;

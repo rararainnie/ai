@@ -1,5 +1,5 @@
 .upload-box {
-  width: 40%;
+  width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,15 +42,15 @@
   height: 50px;
   border: none;
   border-radius: 10px;
-  background-color: rgb(221, 221, 221);
-  border: 2px solid #757675;
+  background-color: #98ff84;
+  border: 2px solid #4fad4c;
   font-size: 15px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
 
 .custom-button:hover {
-  background-color: #757675;
+  background-color: #4fad4c;
   transform: scale(1.05);
 }
 
