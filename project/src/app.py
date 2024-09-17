@@ -1,4 +1,5 @@
 import os
+import csv
 import numpy as np
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -11,6 +12,7 @@ from keras.applications.efficientnet import preprocess_input
 from keras.preprocessing.text import Tokenizer
 from keras.applications import EfficientNetB7
 
+
 app = Flask(__name__)
 CORS(app)
 
@@ -22,28 +24,31 @@ model = load_model('./models/EfficientNetB7_30k_model.h5')  # Path to your saved
 # Define the path to the base directory
 BASE_DIR = './models'
 
-with open(os.path.join(BASE_DIR, 'captions.txt'), 'r') as f:
-    next(f)
-    captions_doc = f.read()
+csv_file_path = os.path.join(BASE_DIR, 'captions.csv')
 
 # create mapping of image to captions
 mapping = {}
-# process lines
-for line in captions_doc.split('\n'):
-    # split the line by comma(,)
-    tokens = line.split(',')
-    if len(line) < 2:
-        continue
-    image_id, caption = tokens[0], tokens[1:]
-    # remove extension from image ID
-    image_id = image_id.split('.')[0]
-    # convert caption list to string
-    caption = " ".join(caption)
-    # create list if needed
-    if image_id not in mapping:
-        mapping[image_id] = []
-    # store the caption
-    mapping[image_id].append(caption)
+
+# Read and process the CSV file
+with open(csv_file_path, 'r', newline='', encoding='utf-8') as f:
+    # Create a CSV reader object with the pipe delimiter
+    reader = csv.reader(f, delimiter='|')
+    
+    # Skip the header if it exists (uncomment the next line if there is a header)
+    # next(reader)
+    
+    # Process each row
+    for row in reader:
+        if len(row) < 3:
+            continue
+        image_id, comment_number, caption = row
+        # Remove extension from image ID
+        image_id = image_id.split('.')[0]
+        # Create list if needed
+        if image_id not in mapping:
+            mapping[image_id] = []
+        # Store the caption
+        mapping[image_id].append(caption.strip())
 
 def clean(mapping):
     for key, captions in mapping.items():
@@ -76,7 +81,6 @@ tokenizer.fit_on_texts(all_captions)
 
 # get maximum length of the caption available
 max_length = max(len(caption.split()) for caption in all_captions)
-max_length
 
 # Helper functions
 def get_feature(image_name):
