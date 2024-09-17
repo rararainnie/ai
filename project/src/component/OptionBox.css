@@ -10,9 +10,9 @@
 }
 
 .option-box-container span {
-  color: #114d22;;
+  color: #272d28;
   font-size: 20px;
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
 }
 
 .number-input {
@@ -24,7 +24,7 @@
   border: 2px solid #5d7c66;
   border-radius: 4px;
   background-color: #eafff0;
-  color: #114d22;;;
+  color: #272d28;
 }
 
 .show-button {
