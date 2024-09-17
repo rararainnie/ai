@@ -65,8 +65,9 @@ import OptionBox from "./OptionBox.js";
 
 const UploadBox = () => {
   const [image, setImage] = useState(null);
-  const [prediction, setPrediction] = useState(null); // Prediction state
-  const [caption, setCaption] = useState("Please upload an image before generating a caption"); // State for caption and prediction
+  const [prediction, setPrediction] = useState(null); 
+  const [caption, setCaption] = useState("Please upload an image before generating a caption");
+  const [captionClass, setCaptionClass] = useState("await"); // Default caption color
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -85,11 +86,11 @@ const UploadBox = () => {
           // Update image state
           setImage(canvas.toDataURL("image/jpeg"));
 
-          // Reset caption and prediction on new image upload
-          setCaption("");
-          setPrediction(null);
+          // Reset caption state on image upload
+          setCaption("Please generate a caption for the uploaded image");
+          setCaptionClass("await");
 
-          // Send image to server
+          // Simulate sending image to server and receiving prediction
           fetch("http://localhost:5000/predict", {
             method: "POST",
             headers: {
@@ -99,8 +100,8 @@ const UploadBox = () => {
           })
             .then((response) => response.json())
             .then((result) => {
-              console.log("Prediction:", result.prediction); // Log prediction result
-              setPrediction(result.prediction); // Store prediction result
+              console.log("Prediction:", result.prediction); 
+              setPrediction(result.prediction); 
             })
             .catch((error) => console.error("Error predicting image:", error));
         };
@@ -112,15 +113,17 @@ const UploadBox = () => {
 
   const handleGenerateCaption = () => {
     if (image) {
-      // If an image is uploaded, display both caption and prediction
+      // If an image is uploaded, display the prediction in dark gray
       let captionText = "This is a caption of the Image";
       if (prediction) {
-        captionText += `\nPrediction: ${prediction.join(", ")}`;
+        captionText = `Prediction: ${prediction.join(", ")}`;
       }
       setCaption(captionText);
+      setCaptionClass("predicted");
     } else {
-      // If no image is uploaded, show error
-      setCaption("Please upload an image before generating a caption");
+      // If no image is uploaded, show error message in red
+      setCaption("Image is not uploaded yet");
+      setCaptionClass("error");
     }
   };
 
@@ -148,7 +151,6 @@ const UploadBox = () => {
         </button>    
       </div>
       <OptionBox label="similar images" />
-      {/* <OptionBox id="option-1" label="Show similar pictures" /> */}
       <input
         type="file"
         id="hidden-file-input"
@@ -156,15 +158,14 @@ const UploadBox = () => {
         style={{ display: "none" }}
       />
       {/* Text box to display caption or error */}
-      <div className={`caption-box ${image ? "caption" : "error"}`}>
-        {caption.split("\n").map((line, index) => (
-          <div key={index}>{line}</div>
-        ))}
+      <div className={`caption-box ${captionClass}`}>
+        {caption}
       </div>
     </div>
   );
 };
 
 export default UploadBox;
+
 
 
