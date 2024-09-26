@@ -1,7 +1,7 @@
 import "./OptionBox.css";
 import React, { useState } from "react";
 
-function OptionBox({ id, onShowSimilar }) {
+function OptionBox({ onShowSimilar }) {
   const [number, setNumber] = useState(1);
 
   const handleChange = (e) => {

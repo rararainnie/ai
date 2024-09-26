@@ -9,6 +9,10 @@ const UploadBox = () => {
     "Please upload an image before generating a caption"
   );
   const [captionClass, setCaptionClass] = useState("await"); // Default caption color
+  const [similarImages, setSimilarImages] = useState([]); // Declare state for similar images
+
+  const API_KEY = "AIzaSyAjlKL_sXQ62ZgcP845whRhFjgII1duj5Q";
+  const SEARCH_ENGINE_ID = "11c6d9c6a0fff4aa1";
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -29,6 +33,7 @@ const UploadBox = () => {
           // Reset caption state on image upload
           setCaption("Please generate a caption for the uploaded image");
           setCaptionClass("await");
+          setSimilarImages([]); // Reset similar images on new upload
         };
         img.src = reader.result;
       };
@@ -72,6 +77,32 @@ const UploadBox = () => {
     }
   };
 
+  // edit
+  const handleShowSimilar = async (number) => {
+    if (caption && caption !== "Please upload an image before generating a caption" && caption !== "Please generate a caption for the uploaded image" && caption !== "Image is not uploaded yet") {
+      try {
+        const response = await fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=${number}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const images = data.items.map(item => ({
+            link: item.link, // URL of the image
+            pageLink: item.image.contextLink // URL of the page where the image is found
+          })); // Extract image URLs and page links
+          setSimilarImages(images); // Update state with image URLs
+        } else {
+          throw new Error("Failed to fetch similar images");
+        }
+      } catch (error) {
+        console.error("Error fetching similar images:", error);
+        setSimilarImages([]);
+      }
+    } else {
+      alert("Please generate a caption first.");
+    }
+  };
+  //
+
   return (
     <div className="upload-box">
       <div className="image-box">
@@ -95,7 +126,7 @@ const UploadBox = () => {
           Generate Caption
         </button>
       </div>
-      <OptionBox label="similar images" />
+      <OptionBox onShowSimilar={handleShowSimilar} />
       <input
         type="file"
         id="hidden-file-input"
@@ -104,6 +135,18 @@ const UploadBox = () => {
       />
       {/* Text box to display caption or error */}
       <div className={`caption-box ${captionClass}`}>{caption}</div>
+      {/* Display similar images */}
+      <div className="similar-images-container">
+        {similarImages.map((imageData, index) => (
+          <div key={index} className="similar-image">
+            {/* Wrap the image in an <a> tag to link to the page */}
+            <a href={imageData.pageLink} target="_blank" rel="noopener noreferrer">
+              <img src={imageData.link} alt={`Similar ${index + 1}`} className="similar-image-item" />
+            </a>
+            <p>{imageData.link}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
