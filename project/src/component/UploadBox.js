@@ -77,31 +77,74 @@ const UploadBox = () => {
     }
   };
 
-  // edit
+  // Function to validate if the image URL is valid
+  const isValidImageUrl = async (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  };
+
   const handleShowSimilar = async (number) => {
-    if (caption && caption !== "Please upload an image before generating a caption" && caption !== "Please generate a caption for the uploaded image" && caption !== "Image is not uploaded yet") {
-      try {
-        const response = await fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=${number}`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          const images = data.items.map(item => ({
-            link: item.link, // URL of the image
-            pageLink: item.image.contextLink // URL of the page where the image is found
-          })); // Extract image URLs and page links
-          setSimilarImages(images); // Update state with image URLs
-        } else {
-          throw new Error("Failed to fetch similar images");
+    if (
+      caption &&
+      caption !== "Please upload an image before generating a caption" &&
+      caption !== "Please generate a caption for the uploaded image" &&
+      caption !== "Image is not uploaded yet"
+    ) {
+      const totalResults = number;
+      const allImages = [];
+      let allFetchedResults = 0;
+      let resultsUsed = 0;
+  
+      // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
+      while (resultsUsed < totalResults) {
+        try {
+          const response = await fetch(
+            `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=10&start=${allFetchedResults + 1}`
+          );
+
+          allFetchedResults += 10;
+
+          if (response.ok) {
+            const data = await response.json();
+            const images = data.items.map((item) => ({
+              link: item.link, // URL ของรูปภาพ
+              pageLink: item.image.contextLink, // URL ของหน้าเว็บที่มีรูปภาพ
+            }));
+
+            // Check which images are valid and filter out the invalid ones
+            const validImages = await Promise.all(
+              images.map(async (image) => ({
+                ...image,
+                isValid: await isValidImageUrl(image.link),
+              }))
+            );
+
+            validImages.forEach((image) => {
+              if (image.isValid) {
+                allImages.push(image);
+                resultsUsed++;
+              }
+            });
+
+          } else {
+            throw new Error("Failed to fetch similar images");
+          }
+        } catch (error) {
+          console.error("Error fetching similar images:", error);
+          setSimilarImages([]);
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching similar images:", error);
-        setSimilarImages([]);
       }
+      // ตัดภาพให้เหลือเพียงจำนวนที่ต้องการ
+      setSimilarImages(allImages.slice(0, totalResults));
     } else {
       alert("Please generate a caption first.");
     }
   };
-  //
 
   return (
     <div className="upload-box">
