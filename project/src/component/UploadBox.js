@@ -4,7 +4,6 @@ import OptionBox from "./OptionBox.js";
 
 const UploadBox = () => {
   const [image, setImage] = useState(null);
-  // const [prediction, setPrediction] = useState(null);
   const [caption, setCaption] = useState(
     "Please upload an image before generating a caption"
   );
@@ -60,7 +59,6 @@ const UploadBox = () => {
 
         if (response.ok) {
           const result = await response.json();
-          // setPrediction(result.caption);
           setCaption(`${result.caption}`);
           setCaptionClass("predicted");
         } else {
@@ -78,7 +76,6 @@ const UploadBox = () => {
     }
   };
 
-  // edit
   // Function to validate if the image URL is valid
   const isValidImageUrl = async (url) => {
     return new Promise((resolve) => {
@@ -103,13 +100,12 @@ const UploadBox = () => {
       const allImages = [];
       let allFetchedResults = 0;
       let resultsUsed = 0;
+  
       // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
       while (resultsUsed < totalResults) {
         try {
           const response = await fetch(
-            `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(
-              caption
-            )}&searchType=image&num=10&start=${allFetchedResults + 1}`
+            `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=10&start=${allFetchedResults + 1}`
           );
 
           allFetchedResults += 10;
@@ -135,6 +131,7 @@ const UploadBox = () => {
                 resultsUsed++;
               }
             });
+
           } else {
             throw new Error("Failed to fetch similar images");
           }
@@ -152,7 +149,6 @@ const UploadBox = () => {
       alert("Please generate a caption first.");
     }
   };
-  //
 
   return (
     <div className="container">
