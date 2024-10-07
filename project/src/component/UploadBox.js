@@ -4,12 +4,13 @@ import OptionBox from "./OptionBox.js";
 
 const UploadBox = () => {
   const [image, setImage] = useState(null);
-  const [prediction, setPrediction] = useState(null);
+  // const [prediction, setPrediction] = useState(null);
   const [caption, setCaption] = useState(
     "Please upload an image before generating a caption"
   );
   const [captionClass, setCaptionClass] = useState("await"); // Default caption color
   const [similarImages, setSimilarImages] = useState([]); // Declare state for similar images
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
 
   const API_KEY = "AIzaSyAjlKL_sXQ62ZgcP845whRhFjgII1duj5Q";
   const SEARCH_ENGINE_ID = "11c6d9c6a0fff4aa1";
@@ -59,7 +60,7 @@ const UploadBox = () => {
 
         if (response.ok) {
           const result = await response.json();
-          setPrediction(result.caption);
+          // setPrediction(result.caption);
           setCaption(`${result.caption}`);
           setCaptionClass("predicted");
         } else {
@@ -96,6 +97,8 @@ const UploadBox = () => {
       caption !== "Please generate a caption for the uploaded image" &&
       caption !== "Image is not uploaded yet"
     ) {
+      setLoadingSimilar(true);
+
       const totalResults = number;
       const allImages = [];
       let allFetchedResults = 0;
@@ -138,11 +141,13 @@ const UploadBox = () => {
         } catch (error) {
           console.error("Error fetching similar images:", error);
           setSimilarImages([]);
+          setLoadingSimilar(false);
           return;
         }
       }
       // ตัดภาพให้เหลือเพียงจำนวนที่ต้องการ
       setSimilarImages(allImages.slice(0, totalResults));
+      setLoadingSimilar(false);
     } else {
       alert("Please generate a caption first.");
     }
@@ -215,6 +220,7 @@ const UploadBox = () => {
       {/* กล่องใส่รูปภาพใกล้เคียง */}
       <h1 className="similar-text">Similar Image</h1>
       <div className="similar-images-container">
+        {loadingSimilar && <div className="loading-similar">please wait...</div>}
         {similarImages.map((imageData, index) => (
           <div key={index} className="similar-image">
             {/* Wrap the image in an <a> tag to link to the page */}
