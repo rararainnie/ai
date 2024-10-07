@@ -1,32 +1,16 @@
-/* .bg {
-  height: 100vh;
-  background-color: #f0f8ff; 
-  color: black;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.borderLine {
-  border-bottom: 1px solid black;
-  opacity: 0.4;
-  align-self: stretch;  
-  margin-bottom: 20px;
-} */
 body {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
+  background-color: #1c2023;
 }
 
 .bg {
-  height: 100vh;
-  background-color: #addbb8;
-  color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
 }
 
 .borderLine {

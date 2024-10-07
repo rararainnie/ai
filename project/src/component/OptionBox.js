@@ -1,12 +1,14 @@
 import "./OptionBox.css";
 import React, { useState } from "react";
 
-function OptionBox({ id, onShowSimilar }) {
+function OptionBox({ onShowSimilar }) {
   const [number, setNumber] = useState(1);
+  const min = 1;
+  const max = 20;
 
   const handleChange = (e) => {
     const value = e.target.value;
-    if (value >= 1 && value <= 10) {
+    if (value >= min && value <= max) {
       setNumber(value);
     }
   };
@@ -21,8 +23,8 @@ function OptionBox({ id, onShowSimilar }) {
       <input
         className="number-input"
         type="number"
-        min="1"
-        max="10"
+        min="min"
+        max="max"
         value={number}
         onChange={handleChange}
       />
