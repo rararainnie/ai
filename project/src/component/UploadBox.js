@@ -171,8 +171,9 @@ const UploadBox = () => {
           <div className="textDescription">
             <h1>How to Generate Image to Text</h1>
             <h4> 1. Upload Picture</h4>
-            <h4> 2. Select how many similar image you want</h4>
-            <h4> 3. Press the Generate button</h4>
+            <h4> 2. Press the Generate button</h4>
+            <h4> 3. Select how many similar image you want</h4>
+            <h4> 4. Search for similar images with the generated caption</h4>
           </div>
           {/* จบกล่องคำอธิบาย */}
 
@@ -214,7 +215,7 @@ const UploadBox = () => {
       </div>
 
       {/* กล่องใส่รูปภาพใกล้เคียง */}
-      <h1 className="similar-text">Similar Image</h1>
+      <h1 className="similar-text">Similar Images</h1>
       <div className="similar-images-container">
         {loadingSimilar && <div className="loading-similar">please wait...</div>}
         {similarImages.map((imageData, index) => (
