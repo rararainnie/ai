@@ -100,6 +100,7 @@ const UploadBox = () => {
       const allImages = [];
       let allFetchedResults = 0;
       let resultsUsed = 0;
+      const imageSet = new Set();
   
       // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
       while (resultsUsed < totalResults) {
@@ -126,8 +127,9 @@ const UploadBox = () => {
             );
 
             validImages.forEach((image) => {
-              if (image.isValid) {
+              if (image.isValid && !imageSet.has(image.link)) {
                 allImages.push(image);
+                imageSet.add(image.link);
                 resultsUsed++;
               }
             });
