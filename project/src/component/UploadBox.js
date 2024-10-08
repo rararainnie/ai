@@ -99,11 +99,10 @@ const UploadBox = () => {
       const totalResults = number;
       const allImages = [];
       let allFetchedResults = 0;
-      let resultsUsed = 0;
       const imageSet = new Set();
   
       // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
-      while (resultsUsed < totalResults) {
+      while (allImages.length < totalResults) {
         try {
           const response = await fetch(
             `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=10&start=${allFetchedResults + 1}`
@@ -130,9 +129,15 @@ const UploadBox = () => {
               if (image.isValid && !imageSet.has(image.link)) {
                 allImages.push(image);
                 imageSet.add(image.link);
-                resultsUsed++;
               }
             });
+
+            if (allImages.length <= totalResults) {
+              setSimilarImages(allImages.slice(0, allImages.length));
+            } else {
+              setSimilarImages(allImages.slice(0, totalResults));
+              setLoadingSimilar(false);
+            }
 
           } else {
             throw new Error("Failed to fetch similar images");
@@ -144,9 +149,6 @@ const UploadBox = () => {
           return;
         }
       }
-      // ตัดภาพให้เหลือเพียงจำนวนที่ต้องการ
-      setSimilarImages(allImages.slice(0, totalResults));
-      setLoadingSimilar(false);
     } else {
       alert("Please generate a caption first.");
     }
@@ -219,7 +221,6 @@ const UploadBox = () => {
       {/* กล่องใส่รูปภาพใกล้เคียง */}
       <h1 className="similar-text">Similar Images</h1>
       <div className="similar-images-container">
-        {loadingSimilar && <div className="loading-similar">please wait...</div>}
         {similarImages.map((imageData, index) => (
           <div key={index} className="similar-image">
             {/* Wrap the image in an <a> tag to link to the page */}
@@ -237,6 +238,7 @@ const UploadBox = () => {
             <p>{imageData.link}</p>
           </div>
         ))}
+        {loadingSimilar && <div className="loading-similar">please wait...</div>}
       </div>
     </div>
   );
