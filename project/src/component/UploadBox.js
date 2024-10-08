@@ -187,7 +187,7 @@ const UploadBox = () => {
             <h1>How to Generate Image to Text</h1>
             <h4> 1. Upload Picture</h4>
             <h4> 2. Press the Generate button</h4>
-            <h4> 3. Select how many similar image you want</h4>
+            <h4> 3. Select how many similar images you want (up to 50 images)</h4>
             <h4> 4. Search for similar images with the generated caption</h4>
           </div>
           {/* จบกล่องคำอธิบาย */}

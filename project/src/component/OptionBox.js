@@ -2,7 +2,7 @@ import "./OptionBox.css";
 import React, { useState } from "react";
 
 function OptionBox({ onShowSimilar }) {
-  const [number, setNumber] = useState(1);
+  const [number, setNumber] = useState(5);
   const min = 1;
   const max = 50;
 
