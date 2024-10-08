@@ -94,15 +94,15 @@ const UploadBox = () => {
       caption !== "Please generate a caption for the uploaded image" &&
       caption !== "Image is not uploaded yet"
     ) {
+      
       setLoadingSimilar(true);
 
       const totalResults = number;
-      const allImages = [];
       let allFetchedResults = 0;
       const imageSet = new Set();
   
       // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
-      while (allImages.length < totalResults) {
+      while (imageSet.size < totalResults) {
         try {
           const response = await fetch(
             `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=10&start=${allFetchedResults + 1}`
@@ -115,7 +115,7 @@ const UploadBox = () => {
             const images = data.items.map((item) => ({
               link: item.link, // URL ของรูปภาพ
               pageLink: item.image.contextLink, // URL ของหน้าเว็บที่มีรูปภาพ
-            }));
+            }));            
 
             // Check which images are valid and filter out the invalid ones
             const validImages = await Promise.all(
@@ -126,16 +126,17 @@ const UploadBox = () => {
             );
 
             validImages.forEach((image) => {
-              if (image.isValid && !imageSet.has(image.link)) {
-                allImages.push(image);
-                imageSet.add(image.link);
+              if (image.isValid) {
+                imageSet.add(image);
+                if (imageSet.size % 10 === 0 || imageSet.size === totalResults) {
+                  setSimilarImages(Array.from(imageSet).slice(0, imageSet.size));
+                  if (imageSet.size === totalResults) setLoadingSimilar(false);
+                }
               }
             });
-
-            if (allImages.length <= totalResults) {
-              setSimilarImages(allImages.slice(0, allImages.length));
-            } else {
-              setSimilarImages(allImages.slice(0, totalResults));
+            
+            if (imageSet.size >= totalResults) {
+              setSimilarImages(Array.from(imageSet).slice(0, totalResults));
               setLoadingSimilar(false);
             }
 
