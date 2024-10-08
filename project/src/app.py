@@ -19,12 +19,12 @@ CORS(app)
 # Load EfficientNetB7 model pre-trained on ImageNet
 modelEfficientNetB7 = EfficientNetB7(weights='imagenet')
 modelEfficientNetB7 = Model(inputs=modelEfficientNetB7.inputs, outputs=modelEfficientNetB7.layers[-2].output)
-model = load_model('./models/EfficientNetB7_30k_model.h5')  # Path to your saved model
+model = load_model('./models/30k_Augmented_LR0.0001_model.h5')  # Path to your saved model
 
 # Define the path to the base directory
 BASE_DIR = './models'
 
-csv_file_path = os.path.join(BASE_DIR, 'captions.csv')
+csv_file_path = os.path.join(BASE_DIR, 'updated_captions.csv')
 
 # create mapping of image to captions
 mapping = {}

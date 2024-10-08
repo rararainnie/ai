@@ -97,50 +97,61 @@ const UploadBox = () => {
       setLoadingSimilar(true);
 
       const totalResults = number;
-      const allImages = [];
+      // const allImages = [];
       let allFetchedResults = 0;
       const imageSet = new Set();
-  
+
       // ทำการเรียก API หลายครั้งเพื่อดึงภาพ
-      while (allImages.length < totalResults) {
+      const uniqueLinks = new Set();
+      const uniquePageLinks = new Set();
+
+      while (imageSet.size < totalResults) {
         try {
           const response = await fetch(
-            `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(caption)}&searchType=image&num=10&start=${allFetchedResults + 1}`
+            `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(
+              caption
+            )}&searchType=image&num=10&start=${allFetchedResults + 1}`
           );
 
           allFetchedResults += 10;
 
-          if (response.ok) {
-            const data = await response.json();
-            const images = data.items.map((item) => ({
-              link: item.link, // URL ของรูปภาพ
-              pageLink: item.image.contextLink, // URL ของหน้าเว็บที่มีรูปภาพ
-            }));
-
-            // Check which images are valid and filter out the invalid ones
-            const validImages = await Promise.all(
-              images.map(async (image) => ({
-                ...image,
-                isValid: await isValidImageUrl(image.link),
-              }))
-            );
-
-            validImages.forEach((image) => {
-              if (image.isValid && !imageSet.has(image.link)) {
-                allImages.push(image);
-                imageSet.add(image.link);
-              }
-            });
-
-            if (allImages.length <= totalResults) {
-              setSimilarImages(allImages.slice(0, allImages.length));
-            } else {
-              setSimilarImages(allImages.slice(0, totalResults));
-              setLoadingSimilar(false);
-            }
-
-          } else {
+          if (!response.ok) {
             throw new Error("Failed to fetch similar images");
+          }
+
+          const data = await response.json();
+          const images = await Promise.all(
+            data.items.map(async (item) => ({
+              link: item.link,
+              pageLink: item.image.contextLink,
+              isValid: await isValidImageUrl(item.link),
+            }))
+          );
+
+          images.forEach(({ link, pageLink, isValid }) => {
+            if (
+              isValid &&
+              !uniqueLinks.has(link) &&
+              !uniquePageLinks.has(pageLink)
+            ) {
+              uniqueLinks.add(link);
+              uniquePageLinks.add(pageLink);
+              imageSet.add({ link, pageLink });
+
+              // Update the UI or state as necessary
+              if (imageSet.size % 10 === 0 || imageSet.size === totalResults) {
+                setSimilarImages(Array.from(imageSet));
+                if (imageSet.size === totalResults) {
+                  setLoadingSimilar(false);
+                }
+              }
+            }
+          });
+
+          // Final update if totalResults is reached
+          if (imageSet.size >= totalResults) {
+            setSimilarImages(Array.from(imageSet).slice(0, totalResults));
+            setLoadingSimilar(false);
           }
         } catch (error) {
           console.error("Error fetching similar images:", error);
@@ -238,7 +249,9 @@ const UploadBox = () => {
             <p>{imageData.link}</p>
           </div>
         ))}
-        {loadingSimilar && <div className="loading-similar">please wait...</div>}
+        {loadingSimilar && (
+          <div className="loading-similar">please wait...</div>
+        )}
       </div>
     </div>
   );

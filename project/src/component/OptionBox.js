@@ -4,7 +4,7 @@ import React, { useState } from "react";
 function OptionBox({ onShowSimilar }) {
   const [number, setNumber] = useState(1);
   const min = 1;
-  const max = 20;
+  const max = 50;
 
   const handleChange = (e) => {
     const value = e.target.value;
