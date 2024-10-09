@@ -17,6 +17,11 @@ const UploadBox = () => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+       // ตรวจสอบว่าไฟล์ที่อัพโหลดเป็นประเภท image หรือไม่
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file.");
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         const img = new Image();
