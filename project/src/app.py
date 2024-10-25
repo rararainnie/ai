@@ -8,9 +8,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from PIL import Image
 import io
 import base64
-from keras.applications.efficientnet import preprocess_input
-from keras.preprocessing.text import Tokenizer
-from keras.applications import EfficientNetB7
+from tensorflow.keras.applications.efficientnet import preprocess_input
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.applications import EfficientNetB7
 
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ CORS(app)
 # Load EfficientNetB7 model pre-trained on ImageNet
 modelEfficientNetB7 = EfficientNetB7(weights='imagenet')
 modelEfficientNetB7 = Model(inputs=modelEfficientNetB7.inputs, outputs=modelEfficientNetB7.layers[-2].output)
-model = load_model('./Augmented_30k_addLSTMlayer_LR0.0001_model.h5')  # Path to your saved model
+model = load_model('./models/Augmented_30k_addLSTMlayer_LR0.0001_model.h5')  # Path to your saved model
 
 # Define the path to the base directory
 BASE_DIR = './models'
